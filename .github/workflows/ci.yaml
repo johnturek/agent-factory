@@ -1,0 +1,164 @@
+name: Agent Factory CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  validate:
+    name: Validate Specs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Validate all specs
+        run: npm run validate:all
+
+  generate:
+    name: Generate Templates
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Generate templates
+        run: npm run generate:all
+      
+      - name: Upload templates
+        uses: actions/upload-artifact@v4
+        with:
+          name: templates
+          path: templates/
+
+  test:
+    name: Test in Environment
+    needs: generate
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download templates
+        uses: actions/download-artifact@v4
+        with:
+          name: templates
+          path: templates/
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Power Platform CLI
+        run: |
+          npm install -g @microsoft/powerplatform-cli-wrapper
+      
+      - name: Authenticate to Power Platform
+        env:
+          PP_CLIENT_ID: ${{ secrets.PP_CLIENT_ID }}
+          PP_CLIENT_SECRET: ${{ secrets.PP_CLIENT_SECRET }}
+          PP_TENANT_ID: ${{ secrets.PP_TENANT_ID }}
+          PP_ENVIRONMENT_URL: ${{ secrets.PP_ENVIRONMENT_URL }}
+        run: |
+          pac auth create --name ci-auth \
+            --applicationId $PP_CLIENT_ID \
+            --clientSecret $PP_CLIENT_SECRET \
+            --tenant $PP_TENANT_ID \
+            --environment $PP_ENVIRONMENT_URL
+      
+      - name: Deploy to test environment
+        run: npm run deploy:test
+      
+      - name: Run automated tests
+        run: npm run test:e2e
+      
+      - name: Cleanup test deployment
+        if: always()
+        run: npm run cleanup:test
+
+  package:
+    name: Package for Delivery
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download templates
+        uses: actions/download-artifact@v4
+        with:
+          name: templates
+          path: templates/
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Package solutions
+        run: npm run package:all
+      
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: releases
+          path: releases/*.zip
+
+  release:
+    name: Create Release
+    needs: package
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'release:')
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download releases
+        uses: actions/download-artifact@v4
+        with:
+          name: releases
+          path: releases/
+      
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(echo "${{ github.event.head_commit.message }}" | grep -oP 'release:\s*v?\K[\d.]+')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          files: releases/*.zip
+          generate_release_notes: true

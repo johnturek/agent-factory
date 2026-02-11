@@ -1,0 +1,46 @@
+{
+  "name": "agent-factory",
+  "version": "0.1.0",
+  "description": "AI-Driven Agent Creation Platform for Microsoft Copilot Studio",
+  "main": "lib/index.js",
+  "bin": {
+    "af": "./cli/index.js"
+  },
+  "scripts": {
+    "validate": "node cli/index.js validate",
+    "validate:all": "node cli/index.js validate specs/**/*.yaml",
+    "generate": "node cli/index.js generate",
+    "generate:all": "node cli/index.js generate specs/**/*.yaml -o templates/",
+    "deploy:test": "node cli/index.js deploy --env test",
+    "test:e2e": "node cli/index.js test --env test",
+    "cleanup:test": "node cli/index.js cleanup --env test",
+    "package:all": "node cli/index.js package templates/ -o releases/",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "copilot-studio",
+    "power-platform",
+    "agents",
+    "ai",
+    "microsoft"
+  ],
+  "author": "Copilot CSA Team",
+  "license": "MIT",
+  "dependencies": {
+    "yaml": "^2.3.4",
+    "ajv": "^8.12.0",
+    "commander": "^11.1.0",
+    "chalk": "^5.3.0",
+    "glob": "^10.3.10",
+    "@azure/identity": "^4.0.0",
+    "@azure/msal-node": "^2.6.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "eslint": "^8.56.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

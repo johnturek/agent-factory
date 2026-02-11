@@ -1,0 +1,248 @@
+# Agent Factory Spec Schema
+# Version: 0.1.0
+# This defines how CSA engineers describe agents
+
+$schema: "http://json-schema.org/draft-07/schema#"
+$id: "https://agentfactory.microsoft.com/schemas/agent-spec-v1.json"
+title: "Agent Specification"
+description: "Schema for defining Copilot Studio agents"
+
+type: object
+required:
+  - apiVersion
+  - kind
+  - metadata
+  - spec
+
+properties:
+  apiVersion:
+    type: string
+    enum: ["agentfactory.microsoft.com/v1"]
+    description: "API version for the spec format"
+
+  kind:
+    type: string
+    enum: ["Agent"]
+    description: "Resource type"
+
+  metadata:
+    type: object
+    required: ["name", "version"]
+    properties:
+      name:
+        type: string
+        pattern: "^[a-z][a-z0-9-]*$"
+        description: "Unique agent identifier (kebab-case)"
+      
+      displayName:
+        type: string
+        description: "Human-readable name"
+      
+      version:
+        type: string
+        pattern: "^\\d+\\.\\d+\\.\\d+$"
+        description: "Semantic version"
+      
+      description:
+        type: string
+        description: "Brief description of the agent's purpose"
+      
+      cloud:
+        type: string
+        enum: ["commercial", "gcc", "gcch", "dod"]
+        default: "commercial"
+        description: "Target Power Platform cloud environment"
+      
+      authors:
+        type: array
+        items:
+          type: string
+        description: "List of agent authors/maintainers"
+      
+      tags:
+        type: array
+        items:
+          type: string
+        description: "Categorization tags"
+
+  spec:
+    type: object
+    properties:
+      # What the agent can do
+      capabilities:
+        type: array
+        items:
+          type: string
+          enum:
+            - document_analysis
+            - document_generation
+            - data_lookup
+            - data_entry
+            - workflow_automation
+            - scheduling
+            - notifications
+            - reporting
+            - compliance_check
+            - translation
+            - summarization
+            - q_and_a
+        description: "High-level capabilities the agent provides"
+
+      # System instructions
+      instructions:
+        type: string
+        description: "System prompt / persona for the agent"
+
+      # Knowledge sources
+      knowledge:
+        type: array
+        items:
+          type: object
+          required: ["type"]
+          properties:
+            type:
+              type: string
+              enum: ["sharepoint", "dataverse", "website", "file", "custom"]
+            site:
+              type: string
+              description: "SharePoint site path"
+            table:
+              type: string
+              description: "Dataverse table name"
+            url:
+              type: string
+              description: "Website URL to index"
+            path:
+              type: string
+              description: "File path (for uploaded docs)"
+            connector:
+              type: string
+              description: "Custom connector reference"
+
+      # Conversation topics
+      topics:
+        type: array
+        items:
+          type: object
+          required: ["name"]
+          properties:
+            name:
+              type: string
+              description: "Topic name"
+            description:
+              type: string
+              description: "What this topic handles"
+            triggers:
+              type: array
+              items:
+                type: string
+              description: "Phrases that trigger this topic"
+            actions:
+              type: array
+              items:
+                oneOf:
+                  - type: string
+                    description: "Simple action reference"
+                  - type: object
+                    properties:
+                      name:
+                        type: string
+                      type:
+                        type: string
+                        enum: ["flow", "connector", "mcp", "agent", "http"]
+                      ref:
+                        type: string
+                        description: "Reference to action definition"
+                      parameters:
+                        type: object
+              description: "Actions to execute in this topic"
+
+      # External connections
+      connectors:
+        type: array
+        items:
+          type: object
+          required: ["name", "type"]
+          properties:
+            name:
+              type: string
+            type:
+              type: string
+              enum: ["standard", "custom", "mcp"]
+            id:
+              type: string
+              description: "Standard connector ID (e.g., sharepointonline)"
+            spec:
+              type: string
+              description: "Path to custom connector spec file"
+            server:
+              type: string
+              description: "MCP server endpoint"
+
+      # Power Automate flows
+      flows:
+        type: array
+        items:
+          type: object
+          required: ["name"]
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            trigger:
+              type: string
+              enum: ["manual", "http", "schedule", "dataverse"]
+            spec:
+              type: string
+              description: "Path to flow definition file"
+
+      # Other agents this agent can call
+      agents:
+        type: array
+        items:
+          type: object
+          required: ["name"]
+          properties:
+            name:
+              type: string
+            schemaName:
+              type: string
+              description: "Copilot Studio schema name"
+            environment:
+              type: string
+              description: "Environment ID if different"
+
+      # Security and compliance
+      security:
+        type: object
+        properties:
+          authentication:
+            type: string
+            enum: ["none", "aad", "api_key"]
+          dataClassification:
+            type: string
+            enum: ["public", "internal", "confidential", "highly_confidential"]
+          auditLogging:
+            type: boolean
+            default: true
+          allowedDomains:
+            type: array
+            items:
+              type: string
+
+      # Deployment settings
+      deployment:
+        type: object
+        properties:
+          channels:
+            type: array
+            items:
+              type: string
+              enum: ["teams", "web", "dynamics365", "custom"]
+          autoPublish:
+            type: boolean
+            default: false
+          solution:
+            type: string
+            description: "Target Power Platform solution name"

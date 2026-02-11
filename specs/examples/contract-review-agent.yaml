@@ -1,0 +1,122 @@
+# Example: Contract Review Agent
+# This is a sample agent spec to demonstrate the format
+
+apiVersion: agentfactory.microsoft.com/v1
+kind: Agent
+
+metadata:
+  name: contract-review-agent
+  displayName: Contract Review Assistant
+  version: 1.0.0
+  description: |
+    Reviews government contracts for compliance with federal acquisition 
+    regulations and agency-specific policies.
+  cloud: gcc
+  authors:
+    - CSA Team
+  tags:
+    - contracts
+    - compliance
+    - legal
+
+spec:
+  instructions: |
+    You are a Contract Review Assistant for federal government agencies.
+    Your role is to help contracting officers review contracts for compliance.
+    
+    Always:
+    - Cite specific FAR/DFAR clauses when relevant
+    - Flag potential compliance issues clearly
+    - Provide actionable recommendations
+    - Maintain confidentiality of contract details
+    
+    Never:
+    - Provide legal advice (recommend consulting legal counsel)
+    - Share contract details outside the conversation
+    - Make final approval decisions
+
+  capabilities:
+    - document_analysis
+    - compliance_check
+    - summarization
+    - q_and_a
+
+  knowledge:
+    - type: sharepoint
+      site: /sites/ContractPolicies
+    - type: sharepoint  
+      site: /sites/FARLibrary
+    - type: website
+      url: https://www.acquisition.gov/far
+
+  topics:
+    - name: Review Contract
+      description: Analyze a contract document for compliance issues
+      triggers:
+        - "review this contract"
+        - "check this contract"
+        - "analyze contract"
+      actions:
+        - name: extract-contract-text
+          type: flow
+          ref: ./flows/extract-document.yaml
+        - name: check-far-compliance
+          type: connector
+          ref: compliance-checker
+        - name: generate-report
+          type: flow
+          ref: ./flows/generate-report.yaml
+
+    - name: FAR Lookup
+      description: Look up specific FAR clauses
+      triggers:
+        - "what does FAR say about"
+        - "find FAR clause"
+        - "look up regulation"
+      actions:
+        - search-knowledge-base
+
+    - name: Summarize Contract
+      description: Provide a summary of key contract terms
+      triggers:
+        - "summarize this contract"
+        - "what are the key terms"
+        - "give me the highlights"
+      actions:
+        - extract-contract-text
+        - summarize-with-ai
+
+  connectors:
+    - name: sharepointonline
+      type: standard
+      id: sharepointonline
+    - name: compliance-checker
+      type: custom
+      spec: ./connectors/compliance-checker.yaml
+    - name: document-ai
+      type: mcp
+      server: https://mcp.agency.gov/document-ai
+
+  flows:
+    - name: extract-document
+      description: Extract text from uploaded contract documents
+      trigger: manual
+      spec: ./flows/extract-document.yaml
+    - name: generate-report
+      description: Generate compliance report PDF
+      trigger: manual
+      spec: ./flows/generate-report.yaml
+
+  security:
+    authentication: aad
+    dataClassification: confidential
+    auditLogging: true
+    allowedDomains:
+      - agency.gov
+      - contractor.com
+
+  deployment:
+    channels:
+      - teams
+    autoPublish: false
+    solution: ContractManagement
