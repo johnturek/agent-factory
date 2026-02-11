@@ -1,5 +1,5 @@
 {
-  "openapi": "2.0",
+  "swagger": "2.0",
   "info": {
     "title": "Federal Policy Analyst API",
     "description": "AI-powered policy analysis service that provides expert federal government policy research and recommendations. Submit policy questions and receive detailed analysis from a specialized federal policy analyst.",
