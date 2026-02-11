@@ -1,8 +1,8 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Federal Policy Analyst API",
-    "description": "AI-powered policy analysis service that provides expert federal government policy research and recommendations. Submit policy questions and receive detailed analysis from a specialized federal policy analyst.",
+    "title": "Federal Policy Analyst",
+    "description": "A service to analyze federal policy questions and provide expert guidance on regulations, compliance, and government procedures.",
     "version": "1.0.0"
   },
   "host": "analyst.turek.in",
@@ -10,19 +10,12 @@
   "schemes": [
     "https"
   ],
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
-  "securityDefinitions": {},
   "paths": {
     "/analyze/sync": {
       "post": {
         "operationId": "analyzePolicy",
         "summary": "Analyze a federal policy question",
-        "description": "Submit a policy question for expert analysis. The analyst will research relevant regulations, guidance, and best practices to provide a comprehensive response. Use this for questions about federal regulations, compliance, agency procedures, or government policy.",
+        "description": "Submit a policy question for expert analysis on federal regulations, compliance, cybersecurity, privacy, or procurement.",
         "consumes": [
           "application/json"
         ],
@@ -35,96 +28,42 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AnalyzeRequest"
+              "type": "object",
+              "required": [
+                "query"
+              ],
+              "properties": {
+                "query": {
+                  "type": "string",
+                  "description": "The policy question to analyze"
+                },
+                "context": {
+                  "type": "string",
+                  "description": "Additional context about the situation"
+                }
+              }
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Analysis completed successfully",
+            "description": "Analysis completed",
             "schema": {
-              "$ref": "#/definitions/AnalyzeResponse"
+              "type": "object",
+              "properties": {
+                "requestId": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "result": {
+                  "type": "string",
+                  "description": "The policy analysis result"
+                }
+              }
             }
           }
-        }
-      }
-    },
-    "/health": {
-      "get": {
-        "operationId": "healthCheck",
-        "summary": "Check API health status",
-        "description": "Returns the current health status of the Federal Policy Analyst API.",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "Service is healthy",
-            "schema": {
-              "$ref": "#/definitions/HealthResponse"
-            }
-          }
-        }
-      }
-    }
-  },
-  "definitions": {
-    "AnalyzeRequest": {
-      "type": "object",
-      "required": [
-        "query"
-      ],
-      "properties": {
-        "query": {
-          "type": "string",
-          "description": "The policy question or topic to analyze. Be specific about the agency, regulation, or policy area."
-        },
-        "context": {
-          "type": "string",
-          "description": "Additional context such as the agency involved, specific situation, or relevant background information."
-        },
-        "requestor": {
-          "type": "string",
-          "description": "Name or role of the person requesting the analysis."
-        }
-      }
-    },
-    "AnalyzeResponse": {
-      "type": "object",
-      "properties": {
-        "requestId": {
-          "type": "string",
-          "description": "Unique identifier for this analysis request"
-        },
-        "status": {
-          "type": "string",
-          "description": "Status of the analysis (completed, error, timeout)"
-        },
-        "query": {
-          "type": "string",
-          "description": "The original query submitted"
-        },
-        "result": {
-          "type": "string",
-          "description": "The detailed policy analysis and recommendations"
-        },
-        "processingTime": {
-          "type": "string",
-          "description": "How long the analysis took"
-        }
-      }
-    },
-    "HealthResponse": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string"
-        },
-        "service": {
-          "type": "string"
-        },
-        "timestamp": {
-          "type": "string"
         }
       }
     }
