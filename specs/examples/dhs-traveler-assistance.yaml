@@ -1,0 +1,262 @@
+# DHS Traveler Assistance Agent
+# Agent Factory Spec v1
+# Target: GCC (Government Community Cloud)
+#
+# CSA Use Case Brief:
+# Department of Homeland Security agencies (CBP, TSA, USCIS) handle millions of traveler
+# inquiries about trusted traveler programs, immigration status, and travel procedures.
+# Citizens need help with Global Entry, TSA PreCheck, USCIS case status, and border crossing.
+#
+# This agent consolidates DHS traveler services information, reducing confusion and
+# call center volume across multiple component agencies.
+#
+# Target: DHS, CBP, TSA, USCIS
+# Compliance: FedRAMP High, GCC/GCC-High ready
+# ROI: Unified entry point reduces cross-agency confusion, 50%+ call deflection
+
+name: DHS Traveler Assistance Agent
+version: "1.0.0"
+
+metadata:
+  description: |
+    An AI-powered assistant helping travelers navigate DHS services including 
+    trusted traveler programs (Global Entry, TSA PreCheck, SENTRI, NEXUS), 
+    immigration case status, and border crossing procedures.
+  author: "John Turek - Copilot CSA"
+  cloud: gcc
+  language: en-US
+
+instructions: |
+  You are a DHS Traveler Assistance Agent helping travelers understand and navigate 
+  Department of Homeland Security services. You provide information across CBP, TSA, 
+  and USCIS programs.
+
+  ## Your Capabilities
+  - Explain trusted traveler programs (Global Entry, TSA PreCheck, SENTRI, NEXUS)
+  - Guide users on USCIS case status checks and immigration processes
+  - Describe CBP entry requirements and border crossing procedures
+  - Explain TSA security procedures and prohibited items
+  - Provide REAL ID information and deadlines
+  - Direct users to appropriate DHS component for their needs
+
+  ## Guidelines
+  1. Direct to official sources (ttp.dhs.gov, uscis.gov, tsa.gov, cbp.gov)
+  2. Be clear about which DHS component handles each service
+  3. Provide accurate processing times but note they vary
+  4. Never promise outcomes for immigration applications
+  5. For legal immigration questions, recommend consulting an attorney
+  6. Be sensitive to the stress travelers may feel about security/immigration
+
+  ## DHS Components
+  - **CBP** (Customs and Border Protection): Border entry, trusted traveler enrollment
+  - **TSA** (Transportation Security Administration): Airport security, PreCheck
+  - **USCIS** (Citizenship and Immigration Services): Immigration benefits, naturalization
+  - **ICE** (Immigration and Customs Enforcement): Do not handle inquiries - escalate
+
+  ## Escalation Triggers
+  - Active detention or enforcement issues → Cannot assist, recommend legal counsel
+  - USCIS case emergencies → USCIS Contact Center
+  - Security concerns → TSA Contact Center or local law enforcement
+  - Discrimination complaints → DHS Office of Civil Rights
+
+  ## Compliance Notes
+  - Never request A-Numbers, receipt numbers, or passport numbers in chat
+  - Immigration information is sensitive - be careful with advice
+  - All conversations may be subject to FOIA
+
+greeting: |
+  Welcome to the DHS Traveler Assistance Agent! I can help you with:
+  
+   Trusted Traveler Programs (Global Entry, TSA PreCheck, NEXUS, SENTRI)
+   USCIS Case Status and Immigration Services
+  🛃 Border Crossing and Entry Requirements
+   TSA Security Procedures and REAL ID
+  
+  What can I help you with today?
+
+fallbackMessage: |
+  I'm not able to answer that specific question. For official information:
+  
+  - **Trusted Traveler Programs**: ttp.dhs.gov
+  - **Immigration/USCIS**: uscis.gov
+  - **TSA/Security**: tsa.gov
+  - **CBP/Border**: cbp.gov
+  
+  Can I help you with something else?
+
+escalationMessage: "I'll connect you with a DHS representative who can provide more specific assistance."
+
+capabilities:
+  - generative_actions
+  - knowledge_search
+
+knowledge:
+  - type: website
+    name: "Trusted Traveler Programs"
+    url: "https://ttp.dhs.gov/"
+  - type: website
+    name: "USCIS"
+    url: "https://www.uscis.gov/"
+  - type: website
+    name: "TSA"
+    url: "https://www.tsa.gov/"
+  - type: website
+    name: "CBP"
+    url: "https://www.cbp.gov/"
+
+topics:
+  - name: Trusted Traveler Programs
+    description: "Questions about Global Entry, TSA PreCheck, NEXUS, SENTRI"
+    triggers:
+      phrases:
+        - "Global Entry"
+        - "TSA PreCheck"
+        - "trusted traveler"
+        - "NEXUS"
+        - "SENTRI"
+        - "enroll in Global Entry"
+        - "trusted traveler renewal"
+        - "KTN number"
+        - "known traveler number"
+    actions:
+      - type: message
+        text: |
+          **Trusted Traveler Programs** (managed by CBP):
+          
+          🌐 **Global Entry** ($100/5 years) - Expedited entry to US + TSA PreCheck
+           **TSA PreCheck** ($78/5 years) - Expedited airport security only
+           **NEXUS** ($50/5 years) - US-Canada travel + Global Entry + TSA PreCheck
+           **SENTRI** ($122.25/5 years) - US-Mexico land crossings + Global Entry
+          
+          Apply at: ttp.dhs.gov
+      - type: question
+        prompt: "Which program are you interested in, or do you need help with an existing application?"
+        variable: TTPProgram
+        entity: string
+      - type: generative_answer
+
+  - name: USCIS Case Status
+    description: "Questions about immigration case status and processing"
+    triggers:
+      phrases:
+        - "USCIS case status"
+        - "immigration case"
+        - "green card status"
+        - "naturalization status"
+        - "I-485"
+        - "I-130"
+        - "receipt number"
+        - "case processing time"
+        - "work permit status"
+        - "EAD status"
+    actions:
+      - type: message
+        text: |
+          To check your USCIS case status:
+          
+          1. Go to uscis.gov/casestatus
+          2. Enter your 13-character receipt number (starts with 3 letters)
+          3. View current status and history
+          
+          **Processing Times**: Check uscis.gov/processingtimes for current estimates by form type and service center.
+          
+          ⚠️ Do not share your receipt number in this chat.
+      - type: question
+        prompt: "What type of case or form are you inquiring about? (e.g., green card, work permit, citizenship)"
+        variable: CaseType
+        entity: string
+      - type: generative_answer
+
+  - name: REAL ID
+    description: "Questions about REAL ID requirements and deadlines"
+    triggers:
+      phrases:
+        - "REAL ID"
+        - "driver's license flying"
+        - "ID to fly"
+        - "airport ID requirements"
+        - "REAL ID deadline"
+    actions:
+      - type: message
+        text: |
+          **REAL ID Requirements** (enforced starting May 7, 2025):
+          
+          To board domestic flights or enter federal facilities, you'll need:
+          - REAL ID-compliant driver's license/ID (marked with *), OR
+          - U.S. Passport/Passport Card, OR
+          - DHS trusted traveler card (Global Entry, NEXUS, etc.)
+          
+          Check with your state DMV for REAL ID availability.
+          
+           REAL ID is NOT required for international travel (passport needed).
+      - type: generative_answer
+
+  - name: Border Crossing
+    description: "Questions about CBP entry requirements and procedures"
+    triggers:
+      phrases:
+        - "border crossing"
+        - "entry requirements"
+        - "customs declaration"
+        - "CBP"
+        - "what can I bring"
+        - "duty free"
+        - "agricultural items"
+        - "passport control"
+    actions:
+      - type: message
+        text: |
+          **Entering the United States:**
+          
+          All travelers must:
+          - Present valid passport or travel document
+          - Complete customs declaration (or use Mobile Passport app)
+          - Declare all items being brought into the country
+          
+          **Prohibited/Restricted Items:**
+          - Many agricultural products (fruits, meats, plants)
+          - Over $10,000 in currency (must declare)
+          - Certain medications without prescription
+          
+          Check cbp.gov for complete lists.
+      - type: question
+        prompt: "What specifically do you need to know about entering the US?"
+        variable: BorderQuestion
+        entity: string
+      - type: generative_answer
+
+  - name: TSA Security
+    description: "Questions about airport security and prohibited items"
+    triggers:
+      phrases:
+        - "TSA"
+        - "airport security"
+        - "prohibited items"
+        - "can I bring"
+        - "liquids on plane"
+        - "security checkpoint"
+        - "3-1-1 rule"
+    actions:
+      - type: message
+        text: |
+          **TSA Security Quick Reference:**
+          
+          **3-1-1 Liquids Rule:**
+          - 3.4 ounces (100ml) or less per container
+          - 1 quart-sized clear plastic bag
+          - 1 bag per passenger
+          
+          **What's My Item?** Use tsa.gov/travel/security-screening/whatcanibring
+          
+          **TSA PreCheck** members: Keep shoes, belt, light jacket on; laptop in bag
+      - type: question
+        prompt: "What item are you wondering about bringing through security?"
+        variable: TSAItem
+        entity: string
+      - type: generative_answer
+
+security:
+  authentication:
+    mode: Unauthenticated
+    provider: None
+  data_classification: Public

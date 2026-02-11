@@ -1,0 +1,74 @@
+# DHS Traveler Assistance (Simplified)
+# Agent Factory Spec v1
+
+name: DHS Traveler Assistance Agent
+version: "1.0.0"
+
+metadata:
+  description: "AI assistant for trusted traveler programs, USCIS, and TSA information"
+  author: "John Turek - Copilot CSA"
+  cloud: gcc
+  language: en-US
+
+instructions: |
+  You are a DHS Traveler Assistance Agent helping with trusted traveler programs,
+  USCIS case status, and TSA security procedures.
+
+  Direct users to ttp.dhs.gov, uscis.gov, and tsa.gov for official information.
+  Never request A-Numbers, receipt numbers, or passport numbers in chat.
+
+greeting: "Welcome! I can help with Global Entry, TSA PreCheck, USCIS cases, and travel security. How can I help?"
+
+fallbackMessage: "For official information: ttp.dhs.gov, uscis.gov, or tsa.gov."
+
+escalationMessage: "Connecting you with a DHS representative."
+
+capabilities:
+  - generative_actions
+  - knowledge_search
+
+knowledge:
+  - type: website
+    name: "Trusted Traveler Programs"
+    url: "https://ttp.dhs.gov/"
+  - type: website
+    name: "USCIS"
+    url: "https://www.uscis.gov/"
+
+topics:
+  - name: Trusted Traveler Programs
+    description: "Global Entry, TSA PreCheck, NEXUS, SENTRI"
+    triggers:
+      phrases:
+        - "Global Entry"
+        - "TSA PreCheck"
+        - "trusted traveler"
+    actions:
+      - type: generative_answer
+
+  - name: USCIS Cases
+    description: "Immigration case status"
+    triggers:
+      phrases:
+        - "USCIS"
+        - "case status"
+        - "green card"
+        - "immigration"
+    actions:
+      - type: generative_answer
+
+  - name: TSA Security
+    description: "Airport security procedures"
+    triggers:
+      phrases:
+        - "TSA"
+        - "airport security"
+        - "can I bring"
+    actions:
+      - type: generative_answer
+
+security:
+  authentication:
+    mode: Integrated
+    provider: None
+  data_classification: Public

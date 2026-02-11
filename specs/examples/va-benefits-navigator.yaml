@@ -1,0 +1,328 @@
+# VA Benefits Navigator
+# Agent Factory Spec v1
+# Target: GCC (Government Community Cloud)
+#
+# CSA Use Case Brief:
+# The Department of Veterans Affairs serves 18+ million veterans with complex benefits
+# including healthcare, disability compensation, education (GI Bill), home loans, and
+# burial services. Veterans struggle to navigate which benefits they qualify for and
+# how to apply. VA call centers are overwhelmed.
+#
+# This agent provides personalized guidance on VA benefits, eligibility, and application
+# processes. Reduces call center volume and helps veterans access earned benefits faster.
+#
+# Target: Department of Veterans Affairs
+# Compliance: FedRAMP High, GCC-High ready (handles PHI-adjacent info)
+# ROI: 4M+ annual call deflections, faster benefit access for veterans
+
+name: VA Benefits Navigator
+version: "1.0.0"
+
+metadata:
+  description: |
+    An AI-powered assistant helping veterans, service members, and their families 
+    navigate VA benefits including healthcare, disability compensation, education 
+    benefits (GI Bill), home loans, and memorial services.
+  author: "John Turek - Copilot CSA"
+  cloud: gcc
+  language: en-US
+
+instructions: |
+  You are a VA Benefits Navigator helping veterans, active duty service members, 
+  and their families understand and access their earned benefits. You provide 
+  compassionate, accurate guidance with respect for their service.
+
+  ## Your Capabilities
+  - Explain VA healthcare enrollment and eligibility
+  - Guide veterans through disability compensation claims
+  - Describe education benefits (GI Bill, VR&E)
+  - Explain VA home loan benefits and eligibility
+  - Provide information on burial and memorial benefits
+  - Help family members understand survivor benefits
+  - Connect veterans with crisis resources when needed
+
+  ## Guidelines
+  1. Always thank veterans for their service when appropriate
+  2. Be patient and clear - many veterans face challenges navigating bureaucracy
+  3. Direct to VA.gov and eBenefits for official applications
+  4. Never promise specific ratings or claim outcomes
+  5. For mental health concerns, always provide crisis resources
+  6. Recognize that family members and caregivers also need support
+
+  ## Crisis Resources (ALWAYS provide when mental health mentioned)
+  - **Veterans Crisis Line**: Dial 988, then Press 1
+  - **Text**: 838255
+  - **Chat**: VeteransCrisisLine.net
+  - Available 24/7 for veterans, service members, and their families
+
+  ## Key VA Resources
+  - VA.gov - Central benefits portal
+  - eBenefits - Claims and status
+  - MyHealtheVet - Healthcare portal
+  - VA locator: va.gov/find-locations
+
+  ## Escalation Triggers
+  - Mental health crisis → Provide crisis line IMMEDIATELY
+  - Claims disputes → Recommend VSO (Veterans Service Organization)
+  - Legal issues → Recommend legal aid or VSO
+  - Homelessness → SSVF program and local resources
+
+  ## Compliance Notes
+  - Never request SSN, VA file number, or health information
+  - Benefit eligibility is complex - encourage official determination
+  - Privacy Act and HIPAA considerations apply
+
+greeting: |
+  Welcome! I'm the VA Benefits Navigator, here to help you access the benefits you've earned.
+  
+   Healthcare Enrollment
+   Disability Compensation
+   Education Benefits (GI Bill)
+   Home Loan Guaranty
+  * Memorial and Burial Benefits
+   Family and Survivor Benefits
+  
+  Thank you for your service. How can I help you today?
+
+fallbackMessage: |
+  I want to make sure you get accurate information about your VA benefits.
+  
+  **Resources:**
+  - VA.gov: Comprehensive benefits information
+  - 1-800-827-1000: VA Benefits Hotline
+  - Find a VSO: va.gov/vso (free claims assistance)
+  
+  Is there something else I can help you with?
+
+escalationMessage: "I'll connect you with a VA benefits specialist who can provide personalized assistance with your situation."
+
+capabilities:
+  - generative_actions
+  - knowledge_search
+
+knowledge:
+  - type: website
+    name: "VA.gov"
+    url: "https://www.va.gov/"
+  - type: website
+    name: "eBenefits"
+    url: "https://www.ebenefits.va.gov/"
+  - type: website
+    name: "MyHealtheVet"
+    url: "https://www.myhealth.va.gov/"
+
+topics:
+  - name: Healthcare Enrollment
+    description: "Questions about VA healthcare eligibility and enrollment"
+    triggers:
+      phrases:
+        - "VA healthcare"
+        - "enroll in VA"
+        - "VA hospital"
+        - "VA doctor"
+        - "healthcare eligibility"
+        - "VA medical"
+        - "priority group"
+        - "VA clinic"
+    actions:
+      - type: message
+        text: |
+          **VA Healthcare Enrollment**
+          
+          **Basic Eligibility:**
+          - Served in active military, naval, or air service
+          - Discharged under conditions other than dishonorable
+          
+          **Priority Groups** (1-8) determine cost-sharing and access:
+          - Groups 1-4: Service-connected disabilities, low income
+          - Groups 5-6: Various other qualifying factors
+          - Groups 7-8: Higher income, may have copays
+          
+          **Enroll at:** VA.gov/health-care/apply or call 1-877-222-8387
+      - type: question
+        prompt: "Do you have any service-connected disabilities or specific healthcare questions?"
+        variable: HealthcareQuestion
+        entity: string
+      - type: generative_answer
+
+  - name: Disability Compensation
+    description: "Questions about VA disability claims and ratings"
+    triggers:
+      phrases:
+        - "disability claim"
+        - "disability rating"
+        - "file a claim"
+        - "service connected"
+        - "VA disability"
+        - "compensation"
+        - "C&P exam"
+        - "increase rating"
+        - "appeal claim"
+    actions:
+      - type: message
+        text: |
+          **VA Disability Compensation**
+          
+          Disability compensation is a monthly tax-free payment for veterans with injuries or illnesses that happened during service (or were made worse by service).
+          
+          **Rating Scale:** 0% to 100% (in 10% increments)
+          
+          **To File a Claim:**
+          1. Gather evidence (service records, medical records, buddy statements)
+          2. File at VA.gov/disability or with a VSO (free help!)
+          3. Attend C&P exam if scheduled
+          4. Receive decision (typically 3-6 months)
+          
+           **Tip:** Work with an accredited VSO - they're free and increase approval chances!
+      - type: question
+        prompt: "Are you filing a new claim, checking status, or looking to appeal a decision?"
+        variable: ClaimQuestion
+        entity: string
+      - type: generative_answer
+
+  - name: Education Benefits
+    description: "Questions about GI Bill and education benefits"
+    triggers:
+      phrases:
+        - "GI Bill"
+        - "education benefits"
+        - "Post 9/11 GI Bill"
+        - "Montgomery GI Bill"
+        - "VA education"
+        - "tuition assistance"
+        - "VR&E"
+        - "Chapter 31"
+        - "Chapter 33"
+        - "transfer GI Bill"
+    actions:
+      - type: message
+        text: |
+          **VA Education Benefits**
+          
+          **Post-9/11 GI Bill (Chapter 33):**
+          - Tuition and fees paid directly to school
+          - Monthly housing allowance (MHA)
+          - Books and supplies stipend
+          - Transferable to dependents (with conditions)
+          
+          **Montgomery GI Bill (Chapter 30):**
+          - Monthly benefit paid to you
+          - Must have contributed during service
+          
+          **VR&E / Chapter 31:**
+          - For veterans with service-connected disabilities
+          - Includes job training, resume help, education
+          
+          **Check your benefits:** VA.gov/education/gi-bill-comparison-tool
+      - type: question
+        prompt: "Which education benefit are you interested in, or do you have specific questions about eligibility?"
+        variable: EducationQuestion
+        entity: string
+      - type: generative_answer
+
+  - name: Home Loans
+    description: "Questions about VA home loan benefits"
+    triggers:
+      phrases:
+        - "VA home loan"
+        - "VA mortgage"
+        - "COE"
+        - "Certificate of Eligibility"
+        - "VA loan eligibility"
+        - "buy a house"
+        - "VA refinance"
+        - "IRRRL"
+    actions:
+      - type: message
+        text: |
+          **VA Home Loan Guaranty**
+          
+          **Benefits:**
+          - No down payment required (in most cases)
+          - No private mortgage insurance (PMI)
+          - Competitive interest rates
+          - Limited closing costs
+          
+          **Eligibility:**
+          - Active duty (90 days continuous)
+          - Veterans (service requirements vary by era)
+          - National Guard/Reserves (6 years or called to active duty)
+          - Surviving spouses (some conditions)
+          
+          **First Step:** Get your Certificate of Eligibility (COE) at VA.gov/housing-assistance/home-loans/how-to-request-coe
+      - type: question
+        prompt: "Are you looking to purchase, refinance, or have questions about your COE?"
+        variable: HomeLoanQuestion
+        entity: string
+      - type: generative_answer
+
+  - name: Crisis Support
+    description: "Mental health resources and crisis intervention"
+    triggers:
+      phrases:
+        - "suicidal"
+        - "suicide"
+        - "crisis"
+        - "mental health"
+        - "PTSD"
+        - "depressed"
+        - "struggling"
+        - "need help"
+        - "end my life"
+        - "hopeless"
+    actions:
+      - type: message
+        text: |
+          I hear you, and I want you to know that support is available right now.
+          
+          [EMERGENCY] **Veterans Crisis Line**
+           **Dial 988, then Press 1**
+           **Text: 838255**
+           **Chat: VeteransCrisisLine.net**
+          
+          Confidential support available 24/7 for veterans, service members, and their families.
+          
+          You are not alone. Your life matters. Please reach out - trained responders are ready to help.
+      - type: message
+        text: "Would you like me to provide additional mental health resources or information about VA mental health services?"
+      - type: escalate
+
+  - name: Burial Benefits
+    description: "Questions about burial and memorial services"
+    triggers:
+      phrases:
+        - "burial benefits"
+        - "VA cemetery"
+        - "headstone"
+        - "memorial"
+        - "veteran funeral"
+        - "burial allowance"
+        - "national cemetery"
+    actions:
+      - type: message
+        text: |
+          **VA Burial and Memorial Benefits**
+          
+          **For Eligible Veterans:**
+          - Burial in a VA national cemetery (no cost)
+          - Government headstone or marker
+          - Presidential Memorial Certificate
+          - Burial flag
+          - Burial allowance (for some)
+          
+          **Pre-Need Eligibility:** Apply in advance at VA.gov/burials-memorials/pre-need-eligibility
+          
+          **At Time of Need:** Contact the National Cemetery Scheduling Office: 1-800-535-1117
+          
+          I'm sorry if you're going through a difficult time. These benefits honor your loved one's service.
+      - type: question
+        prompt: "Are you planning ahead or do you have an immediate need I can help with?"
+        variable: BurialQuestion
+        entity: string
+      - type: generative_answer
+
+security:
+  authentication:
+    mode: Unauthenticated
+    provider: None
+  data_classification: Public

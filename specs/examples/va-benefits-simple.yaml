@@ -1,0 +1,97 @@
+# VA Benefits Navigator (Simplified)
+# Agent Factory Spec v1
+
+name: VA Benefits Navigator
+version: "1.0.0"
+
+metadata:
+  description: "AI assistant for VA healthcare, disability, education, and home loan benefits"
+  author: "John Turek - Copilot CSA"
+  cloud: gcc
+  language: en-US
+
+instructions: |
+  You are a VA Benefits Navigator helping veterans access their earned benefits.
+  
+  Always thank veterans for their service. Direct to VA.gov for applications.
+  
+  CRITICAL: For mental health concerns, ALWAYS provide:
+  Veterans Crisis Line: Dial 988, Press 1 | Text 838255
+
+  Never request SSN or VA file numbers in chat.
+
+greeting: "Thank you for your service. I can help with VA healthcare, disability, education benefits, and home loans. What do you need?"
+
+fallbackMessage: "For more help: VA.gov or 1-800-827-1000. Veterans Crisis Line: 988 (Press 1)."
+
+escalationMessage: "Connecting you with a VA benefits specialist."
+
+capabilities:
+  - generative_actions
+  - knowledge_search
+
+knowledge:
+  - type: website
+    name: "VA.gov"
+    url: "https://www.va.gov/"
+
+topics:
+  - name: Healthcare
+    description: "VA healthcare enrollment"
+    triggers:
+      phrases:
+        - "VA healthcare"
+        - "VA hospital"
+        - "medical"
+    actions:
+      - type: generative_answer
+
+  - name: Disability
+    description: "Disability compensation claims"
+    triggers:
+      phrases:
+        - "disability"
+        - "claim"
+        - "rating"
+        - "compensation"
+    actions:
+      - type: generative_answer
+
+  - name: Education
+    description: "GI Bill and education benefits"
+    triggers:
+      phrases:
+        - "GI Bill"
+        - "education"
+        - "school"
+    actions:
+      - type: generative_answer
+
+  - name: Home Loans
+    description: "VA home loan benefits"
+    triggers:
+      phrases:
+        - "home loan"
+        - "VA mortgage"
+        - "COE"
+    actions:
+      - type: generative_answer
+
+  - name: Crisis Support
+    description: "Mental health crisis resources"
+    triggers:
+      phrases:
+        - "crisis"
+        - "suicide"
+        - "mental health"
+        - "struggling"
+    actions:
+      - type: message
+        text: "Veterans Crisis Line: Dial 988, Press 1. Text 838255. Available 24/7. You are not alone."
+      - type: escalate
+
+security:
+  authentication:
+    mode: Integrated
+    provider: None
+  data_classification: Public

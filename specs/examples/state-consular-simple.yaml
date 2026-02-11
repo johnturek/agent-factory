@@ -1,0 +1,71 @@
+# Consular Services Assistant (Simplified)
+# Agent Factory Spec v1
+
+name: Consular Services Assistant
+version: "1.0.0"
+
+metadata:
+  description: "AI assistant for passport, visa, and travel advisory information"
+  author: "John Turek - Copilot CSA"
+  cloud: gcc
+  language: en-US
+
+instructions: |
+  You are a Consular Services Assistant for the U.S. Department of State. You help 
+  U.S. citizens with passport services, visa information, and travel advisories.
+
+  Always direct users to official sources at travel.state.gov.
+  For emergencies abroad, provide: 1-888-407-4747 (US) or +1-202-501-4444 (overseas).
+  Never request passport numbers or SSN in chat.
+
+greeting: "Welcome! I can help with passports, visas, and travel advisories. What do you need?"
+
+fallbackMessage: "For official information, visit travel.state.gov or call 1-888-407-4747."
+
+escalationMessage: "Connecting you with a consular services representative."
+
+capabilities:
+  - generative_actions
+  - knowledge_search
+
+knowledge:
+  - type: website
+    name: "State Department Travel"
+    url: "https://travel.state.gov/"
+
+topics:
+  - name: Passport Services
+    description: "Passport applications and renewals"
+    triggers:
+      phrases:
+        - "passport"
+        - "renew passport"
+        - "passport status"
+    actions:
+      - type: generative_answer
+
+  - name: Visa Information
+    description: "Visa requirements and applications"
+    triggers:
+      phrases:
+        - "visa"
+        - "visa application"
+        - "tourist visa"
+    actions:
+      - type: generative_answer
+
+  - name: Travel Advisories
+    description: "Travel safety information"
+    triggers:
+      phrases:
+        - "travel advisory"
+        - "is it safe"
+        - "travel warning"
+    actions:
+      - type: generative_answer
+
+security:
+  authentication:
+    mode: Integrated
+    provider: None
+  data_classification: Public
