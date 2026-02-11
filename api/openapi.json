@@ -1,71 +1,76 @@
 {
-  "swagger": "2.0",
+  "openapi": "3.0.0",
   "info": {
     "title": "Federal Policy Analyst API",
-    "description": "AI-powered policy analysis service that provides expert federal government policy research and recommendations. Submit policy questions and receive detailed analysis from a specialized federal policy analyst.",
+    "description": "AI-powered policy analysis service that provides expert federal government policy research and recommendations.",
     "version": "1.0.0"
   },
-  "host": "analyst.turek.in",
-  "basePath": "/api/v1",
-  "schemes": ["https"],
-  "consumes": ["application/json"],
-  "produces": ["application/json"],
+  "servers": [
+    {
+      "url": "https://analyst.turek.in/api/v1",
+      "description": "Production server"
+    }
+  ],
   "paths": {
     "/analyze/sync": {
       "post": {
         "operationId": "analyzePolicy",
         "summary": "Analyze a federal policy question",
-        "description": "Submit a policy question for expert analysis. The analyst will research relevant regulations, guidance, and best practices to provide a comprehensive response. Use this for questions about federal regulations, compliance, agency procedures, or government policy.",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": ["query"],
-              "properties": {
-                "query": {
-                  "type": "string",
-                  "description": "The policy question or topic to analyze. Be specific about the agency, regulation, or policy area."
-                },
-                "context": {
-                  "type": "string",
-                  "description": "Additional context such as the agency involved, specific situation, or relevant background information."
-                },
-                "requestor": {
-                  "type": "string",
-                  "description": "Name or role of the person requesting the analysis."
+        "description": "Submit a policy question for expert analysis. The analyst will research relevant regulations, guidance, and best practices to provide a comprehensive response.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["query"],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "The policy question or topic to analyze."
+                  },
+                  "context": {
+                    "type": "string",
+                    "description": "Additional context such as the agency involved."
+                  },
+                  "requestor": {
+                    "type": "string",
+                    "description": "Name or role of the person requesting the analysis."
+                  }
                 }
               }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Analysis completed successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "requestId": {
-                  "type": "string",
-                  "description": "Unique identifier for this analysis request"
-                },
-                "status": {
-                  "type": "string",
-                  "description": "Status of the analysis (completed, error, timeout)"
-                },
-                "query": {
-                  "type": "string",
-                  "description": "The original query submitted"
-                },
-                "result": {
-                  "type": "string",
-                  "description": "The detailed policy analysis and recommendations"
-                },
-                "processingTime": {
-                  "type": "string",
-                  "description": "How long the analysis took"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requestId": {
+                      "type": "string",
+                      "description": "Unique identifier for this analysis request"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Status of the analysis"
+                    },
+                    "query": {
+                      "type": "string",
+                      "description": "The original query submitted"
+                    },
+                    "result": {
+                      "type": "string",
+                      "description": "The detailed policy analysis and recommendations"
+                    },
+                    "processingTime": {
+                      "type": "string",
+                      "description": "How long the analysis took"
+                    }
+                  }
                 }
               }
             }
@@ -77,21 +82,18 @@
       "get": {
         "operationId": "healthCheck",
         "summary": "Check API health status",
-        "description": "Returns the current health status of the Federal Policy Analyst API.",
         "responses": {
           "200": {
             "description": "Service is healthy",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": {
-                  "type": "string"
-                },
-                "service": {
-                  "type": "string"
-                },
-                "timestamp": {
-                  "type": "string"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "service": { "type": "string" },
+                    "timestamp": { "type": "string" }
+                  }
                 }
               }
             }
