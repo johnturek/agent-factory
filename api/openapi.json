@@ -1,13 +1,10 @@
 {
-  "swagger": "2.0",
+  "openapi": "3.0.1",
   "info": {
     "title": "Federal Policy Analyst",
     "description": "A service to analyze federal policy questions and provide expert guidance on regulations, compliance, and government procedures.",
     "version": "1.0.0"
   },
-  "host": "analyst.turek.in",
-  "basePath": "/api/v1",
-  "schemes": ["https"],
   "servers": [
     {
       "url": "https://analyst.turek.in/api/v1"
@@ -19,38 +16,40 @@
         "operationId": "analyzePolicy",
         "summary": "Analyze a federal policy question",
         "description": "Submit a policy question for expert analysis on federal regulations, compliance, cybersecurity, privacy, or procurement.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": ["query"],
-              "properties": {
-                "query": {
-                  "type": "string",
-                  "description": "The policy question to analyze"
-                },
-                "context": {
-                  "type": "string",
-                  "description": "Additional context about the situation"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["query"],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "The policy question to analyze"
+                  },
+                  "context": {
+                    "type": "string",
+                    "description": "Additional context about the situation"
+                  }
                 }
               }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Analysis completed",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "requestId": {"type": "string"},
-                "status": {"type": "string"},
-                "result": {"type": "string", "description": "The policy analysis result"}
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requestId": {"type": "string"},
+                    "status": {"type": "string"},
+                    "result": {"type": "string", "description": "The policy analysis result"}
+                  }
+                }
               }
             }
           }
