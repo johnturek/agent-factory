@@ -54,14 +54,34 @@ program
 program
   .command('generate <specs...>')
   .description('Generate Copilot Studio templates from specs')
-  .option('-o, --output <dir>', 'Output directory', 'templates/')
+  .option('-o, --output <path>', 'Output file or directory', 'templates/')
   .action(async (specs, options) => {
     console.log('⚙️  Generating templates...');
     const { generate } = require('../lib/generate');
+    const yaml = require('js-yaml');
     
     for (const specPath of specs) {
       try {
-        const outputPath = await generate(specPath, options.output);
+        // Load and parse spec YAML
+        const specContent = fs.readFileSync(specPath, 'utf8');
+        const spec = yaml.load(specContent);
+        
+        // Generate Copilot Studio template
+        const template = generate(spec);
+        
+        // Determine output path
+        let outputPath = options.output;
+        if (outputPath.endsWith('/')) {
+          // Directory mode - use spec name
+          const baseName = path.basename(specPath, '.yaml');
+          outputPath = path.join(outputPath, `${baseName}-template.yaml`);
+        }
+        
+        // Ensure output directory exists
+        fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+        
+        // Write template
+        fs.writeFileSync(outputPath, template);
         console.log(`  ✅ ${specPath} → ${outputPath}`);
       } catch (err) {
         console.log(`  ❌ ${specPath}: ${err.message}`);

@@ -1,122 +1,130 @@
-# Example: Contract Review Agent
-# This is a sample agent spec to demonstrate the format
+# Contract Review Agent
+# Agent Factory Spec v1
+# Target: GCC (Government Community Cloud)
 
-apiVersion: agentfactory.microsoft.com/v1
-kind: Agent
+name: Contract Review Agent
+version: "1.0.0"
 
 metadata:
-  name: contract-review-agent
-  displayName: Contract Review Assistant
-  version: 1.0.0
-  description: |
-    Reviews government contracts for compliance with federal acquisition 
-    regulations and agency-specific policies.
-  cloud: gcc
-  authors:
-    - CSA Team
-  tags:
-    - contracts
-    - compliance
-    - legal
+  description: "AI assistant that helps federal contract specialists review and analyze government contracts"
+  author: "CSA Team"
+  cloud: gcc  # commercial | gcc | gcch | dod
+  language: en-US
 
-spec:
-  instructions: |
-    You are a Contract Review Assistant for federal government agencies.
-    Your role is to help contracting officers review contracts for compliance.
-    
-    Always:
-    - Cite specific FAR/DFAR clauses when relevant
-    - Flag potential compliance issues clearly
-    - Provide actionable recommendations
-    - Maintain confidentiality of contract details
-    
-    Never:
-    - Provide legal advice (recommend consulting legal counsel)
-    - Share contract details outside the conversation
-    - Make final approval decisions
+# Core agent instructions (system prompt)
+instructions: |
+  You are a helpful AI assistant that specializes in reviewing federal government contracts.
+  
+  Your role is to:
+  - Help users understand contract terms and conditions
+  - Identify potential compliance issues
+  - Answer questions about FAR (Federal Acquisition Regulation) clauses
+  - Summarize key contract provisions
+  
+  Always be professional and accurate. If you're unsure about something, say so.
+  Never provide legal advice - recommend consulting with a contracting officer or legal counsel when appropriate.
 
-  capabilities:
-    - document_analysis
-    - compliance_check
-    - summarization
-    - q_and_a
+# Optional greeting override
+greeting: "Hello! I'm your Contract Review Assistant. How can I help you with federal contracts today?"
 
-  knowledge:
-    - type: sharepoint
-      site: /sites/ContractPolicies
-    - type: sharepoint  
-      site: /sites/FARLibrary
-    - type: website
-      url: https://www.acquisition.gov/far
+# Optional fallback message
+fallbackMessage: "I'm not sure I understand. Could you rephrase your question about the contract?"
 
-  topics:
-    - name: Review Contract
-      description: Analyze a contract document for compliance issues
-      triggers:
-        - "review this contract"
-        - "check this contract"
-        - "analyze contract"
-      actions:
-        - name: extract-contract-text
-          type: flow
-          ref: ./flows/extract-document.yaml
-        - name: check-far-compliance
-          type: connector
-          ref: compliance-checker
-        - name: generate-report
-          type: flow
-          ref: ./flows/generate-report.yaml
+# Optional escalation message
+escalationMessage: "I'll connect you with a contracting specialist. Please hold while I transfer you."
 
-    - name: FAR Lookup
-      description: Look up specific FAR clauses
-      triggers:
-        - "what does FAR say about"
-        - "find FAR clause"
-        - "look up regulation"
-      actions:
-        - search-knowledge-base
+# Agent capabilities
+capabilities:
+  - generative_actions
+  - knowledge_search
 
-    - name: Summarize Contract
-      description: Provide a summary of key contract terms
-      triggers:
+# Knowledge sources
+knowledge:
+  - type: sharepoint
+    name: "FAR Library"
+    url: "https://contoso.sharepoint.com/sites/FAR"
+  - type: website
+    name: "Acquisition.gov"
+    url: "https://www.acquisition.gov"
+
+# Custom topics
+topics:
+  - name: Contract Summary
+    description: "Summarize key terms of a contract"
+    triggers:
+      phrases:
         - "summarize this contract"
+        - "give me a summary"
         - "what are the key terms"
-        - "give me the highlights"
-      actions:
-        - extract-contract-text
-        - summarize-with-ai
+        - "overview of contract"
+    actions:
+      - type: question
+        prompt: "Please paste the contract text or upload a document, and I'll summarize the key terms for you."
+        variable: ContractText
+        entity: string
+      - type: generative_answer
+      - type: message
+        text: "Is there anything specific about this contract you'd like me to clarify?"
 
-  connectors:
-    - name: sharepointonline
-      type: standard
-      id: sharepointonline
-    - name: compliance-checker
-      type: custom
-      spec: ./connectors/compliance-checker.yaml
-    - name: document-ai
-      type: mcp
-      server: https://mcp.agency.gov/document-ai
+  - name: FAR Clause Lookup
+    description: "Look up and explain FAR clauses"
+    triggers:
+      phrases:
+        - "explain FAR clause"
+        - "what does FAR say about"
+        - "FAR requirement"
+        - "acquisition regulation"
+    actions:
+      - type: question
+        prompt: "Which FAR clause number or topic would you like me to explain?"
+        variable: FARQuery
+        entity: string
+      - type: generative_answer
+      - type: message
+        text: "Would you like me to look up any related clauses?"
 
-  flows:
-    - name: extract-document
-      description: Extract text from uploaded contract documents
-      trigger: manual
-      spec: ./flows/extract-document.yaml
-    - name: generate-report
-      description: Generate compliance report PDF
-      trigger: manual
-      spec: ./flows/generate-report.yaml
+  - name: Compliance Check
+    description: "Check contract for compliance issues"
+    triggers:
+      phrases:
+        - "check compliance"
+        - "compliance review"
+        - "is this compliant"
+        - "regulatory compliance"
+    actions:
+      - type: message
+        text: "I'll help you check for compliance issues. Please note this is not a substitute for official legal review."
+      - type: question
+        prompt: "Please describe the contract terms or paste the relevant section you'd like me to review."
+        variable: ComplianceText
+        entity: string
+      - type: generative_answer
+      - type: condition
+        conditions:
+          - if: "=contains(Topic.Answer, 'issue')"
+            then:
+              - type: message
+                text: "I've identified some potential issues. Would you like me to connect you with a compliance specialist?"
+              - type: question
+                prompt: "Would you like to escalate to a compliance specialist?"
+                variable: EscalateDecision
+                entity: boolean
+        else:
+          - type: message
+            text: "No obvious compliance issues detected. However, I recommend official review for important contracts."
 
-  security:
-    authentication: aad
-    dataClassification: confidential
-    auditLogging: true
-    allowedDomains:
-      - agency.gov
-      - contractor.com
+# Connectors (Power Platform connections)
+connectors:
+  - name: SharePointOnline
+    type: standard
+    connection_reference: "shared_sharepointonline"
+  - name: AzureOpenAI
+    type: custom
+    connection_reference: "shared_azureopenai"
 
-  deployment:
-    channels:
-      - teams
-    autoPublish: false
-    solution: ContractManagement
+# Security settings
+security:
+  authentication:
+    mode: Integrated
+    provider: AzureAD
+  data_classification: CUI  # Controlled Unclassified Information
