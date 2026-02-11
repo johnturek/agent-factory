@@ -7,8 +7,11 @@
   },
   "host": "analyst.turek.in",
   "basePath": "/api/v1",
-  "schemes": [
-    "https"
+  "schemes": ["https"],
+  "servers": [
+    {
+      "url": "https://analyst.turek.in/api/v1"
+    }
   ],
   "paths": {
     "/analyze/sync": {
@@ -16,12 +19,8 @@
         "operationId": "analyzePolicy",
         "summary": "Analyze a federal policy question",
         "description": "Submit a policy question for expert analysis on federal regulations, compliance, cybersecurity, privacy, or procurement.",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
         "parameters": [
           {
             "name": "body",
@@ -29,9 +28,7 @@
             "required": true,
             "schema": {
               "type": "object",
-              "required": [
-                "query"
-              ],
+              "required": ["query"],
               "properties": {
                 "query": {
                   "type": "string",
@@ -51,16 +48,9 @@
             "schema": {
               "type": "object",
               "properties": {
-                "requestId": {
-                  "type": "string"
-                },
-                "status": {
-                  "type": "string"
-                },
-                "result": {
-                  "type": "string",
-                  "description": "The policy analysis result"
-                }
+                "requestId": {"type": "string"},
+                "status": {"type": "string"},
+                "result": {"type": "string", "description": "The policy analysis result"}
               }
             }
           }
