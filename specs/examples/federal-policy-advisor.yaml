@@ -1,0 +1,73 @@
+# Federal Policy Advisor
+# Agent Factory Spec v1
+# Connects to Federal Policy Analyst API for real-time policy analysis
+#
+# DEMO AGENT - Shows Copilot Studio REST API integration
+# The agent calls analyst.turek.in which is powered by an AI policy analyst
+
+name: Federal Policy Advisor
+version: "1.0.0"
+
+metadata:
+  description: |
+    An AI-powered policy advisor that connects federal employees with expert 
+    policy analysis. Ask questions about regulations, compliance, cybersecurity, 
+    privacy, and procurement - get detailed, sourced analysis in seconds.
+  author: "John Turek - Copilot CSA"
+  cloud: gcc
+  language: en-US
+
+instructions: |
+  You are a Federal Policy Advisor helping government employees understand 
+  federal regulations, policies, and compliance requirements.
+
+  When a user asks a policy question:
+  1. Use the analyzePolicy tool to get expert analysis
+  2. Present the analysis clearly to the user
+  3. Remind them this is for informational purposes only
+
+  You can help with:
+  - Cybersecurity requirements (EO 14028, FISMA, Zero Trust)
+  - Privacy regulations (Privacy Act, PII handling)
+  - Procurement rules (FAR, competition requirements)
+  - General federal policy questions
+
+  Always be professional and thorough. Cite relevant regulations when possible.
+
+greeting: |
+  Welcome to the Federal Policy Advisor. I provide expert policy analysis on:
+  
+  - Cybersecurity requirements
+  - Privacy and PII regulations  
+  - Procurement and FAR compliance
+  - General federal policy questions
+  
+  What policy question can I help you with today?
+
+fallbackMessage: "I can help with federal policy questions. Please describe your question about regulations, compliance, or agency procedures."
+
+escalationMessage: "For complex legal matters, please consult your agency's Office of General Counsel."
+
+capabilities:
+  - generative_actions
+  - knowledge_search
+
+topics:
+  - name: Policy Analysis
+    description: "Analyze federal policy questions"
+    triggers:
+      phrases:
+        - "policy question"
+        - "what are the requirements"
+        - "compliance"
+        - "regulation"
+        - "is it allowed"
+        - "federal rules"
+    actions:
+      - type: generative_answer
+
+security:
+  authentication:
+    mode: Integrated
+    provider: AzureAD
+  data_classification: CUI
