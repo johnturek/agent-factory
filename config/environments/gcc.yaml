@@ -1,0 +1,9 @@
+# GCC Environment Configuration
+---
+name: GCC
+apiEndpoint: "https://api.gov.agentfactory.com"
+region: "us-gov-west-1"
+auth:
+  type: "SAML"
+  metadataUrl: "https://auth.gov.agentfactory.com/metadata"
+  entityId: "agent-factory-gcc"

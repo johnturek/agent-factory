@@ -1,5 +1,13 @@
 # Agent Factory
 
+## New in v0.2.0 - Federal Enhancements
+
+- **Federal Agent Templates**: Prebuilt YAML specs for HR, IT, FOIA, and more.
+- **Multi-Environment Support**: Deploy to GCC, GCC-High, and DoD environments with `--env`.
+- **Compliance Metadata**: Ensure specs meet federal standards.
+- **Guardrails**: Reusable rules for PII, legal disclaimers, and escalation.
+- **Audit Command**: Generate `audit-report` JSON manifests for compliance.
+
 **Agent-as-Code for Microsoft Copilot Studio**
 
 Define, version, and deploy Copilot Studio agents using simple YAML specifications.

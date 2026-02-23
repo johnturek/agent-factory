@@ -1,0 +1,5 @@
+# Human Escalation Guardrails
+---
+policies:
+  - "Escalate complex cases to a human supervisor."
+  - "Follow predefined escalation pathways."

@@ -1,0 +1,5 @@
+# PII Protection Guardrails
+---
+policies:
+  - "Mask personally identifiable information unless authorized."
+  - "Ensure sensitive data is encrypted during transmission."

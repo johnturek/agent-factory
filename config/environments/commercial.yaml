@@ -1,0 +1,10 @@
+# Commercial Environment Configuration
+---
+name: Commercial
+apiEndpoint: "https://api.agentfactory.com"
+region: "us-east-1"
+auth:
+  type: "OAuth"
+  tokenUrl: "https://auth.agentfactory.com/token"
+  clientId: "your-client-id"
+  clientSecret: "your-client-secret"

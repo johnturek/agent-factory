@@ -1,0 +1,9 @@
+# DoD Environment Configuration
+---
+name: DoD
+apiEndpoint: "https://api.dod.agentfactory.mil"
+region: "us-gov-mil-1"
+auth:
+  type: "PKI"
+  certPath: "/etc/agent-factory/dod-cert.pem"
+  keyPath: "/etc/agent-factory/dod-key.pem"

@@ -1,0 +1,9 @@
+# GCC-High Environment Configuration
+---
+name: GCC-High
+apiEndpoint: "https://api.high.gov.agentfactory.com"
+region: "us-gov-high-east-1"
+auth:
+  type: "SAML"
+  metadataUrl: "https://auth.high.gov.agentfactory.com/metadata"
+  entityId: "agent-factory-gcc-high"
